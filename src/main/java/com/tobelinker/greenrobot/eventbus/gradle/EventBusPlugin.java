@@ -3,6 +3,7 @@ package com.tobelinker.greenrobot.eventbus.gradle;
 import com.android.build.gradle.AppExtension;
 import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.api.ApplicationVariant;
+import com.android.build.gradle.internal.dsl.ProductFlavor;
 
 import org.gradle.api.Action;
 import org.gradle.api.DomainObjectSet;
@@ -13,6 +14,8 @@ import org.gradle.api.file.FileCollection;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Method;
+import java.util.Map;
 
 public class EventBusPlugin implements Plugin<Project>{
     @Override
@@ -21,7 +24,8 @@ public class EventBusPlugin implements Plugin<Project>{
             throw new IllegalStateException("EventBus plugin can only be applied to android projects!");
         }
 
-        project.getExtensions().create("eventbus", EventBusExtension.class);
+        project.getExtensions().create("greenrobot-eventbus", EventBusExtension.class);
+
 
         AppExtension android = (AppExtension) project.getExtensions().findByName("android");
 
@@ -37,20 +41,37 @@ public class EventBusPlugin implements Plugin<Project>{
 
     private void findAndHookProguardTask(Project project, AppExtension android) {
         DomainObjectSet<ApplicationVariant> applicationVariants = android.getApplicationVariants();
+        String eventBusIndex = null;
+
+        ProductFlavor defaultConfig = android.getDefaultConfig();
+        try {
+            Method getJavaCompileOptions = defaultConfig.getClass().getDeclaredMethod("getJavaCompileOptions");
+            Object javaCompileOptions = getJavaCompileOptions.invoke(defaultConfig);
+            Method getAnnotationProcessorOptions = javaCompileOptions.getClass().getDeclaredMethod("getAnnotationProcessorOptions");
+            Object annotationProcessorOptions = getAnnotationProcessorOptions.invoke(javaCompileOptions);
+            Method getArguments = annotationProcessorOptions.getClass().getDeclaredMethod("getArguments");
+            Map<String, String> arguments = (Map<String, String>) getArguments.invoke(annotationProcessorOptions);
+            eventBusIndex = arguments.get("eventBusIndex");
+
+        } catch (Exception e) {
+            EventBusExtension eventBusExtension = (EventBusExtension) project.getExtensions().findByName("greenrobot-eventbus");
+            if (eventBusExtension != null) {
+                eventBusIndex = eventBusExtension.getEventBusIndex();
+            }
+            if (eventBusIndex == null || eventBusIndex.isEmpty()) {
+                throw new IllegalStateException("eventbusIndex is null or emply!");
+            }
+        }
         for(ApplicationVariant variant : applicationVariants){
             String name = variant.getName();
             Task proguardTask = project.getTasks().findByName("transformClassesAndResourcesWithProguardFor"+capitalize(name));
             if(proguardTask != null){
-                hookProguardTask(proguardTask, (EventBusExtension) project.getExtensions().findByName("eventbus"));
+                hookProguardTask(proguardTask, eventBusIndex);
             }
         }
     }
 
-    private void hookProguardTask(final Task proguardTask, EventBusExtension eventBusExtension) {
-        String eventbusIndex = eventBusExtension.getEventBusIndex();
-        if(eventbusIndex == null || eventbusIndex.isEmpty()){
-            throw new IllegalStateException("eventbusIndex is null or emply!");
-        }
+    private void hookProguardTask(final Task proguardTask, final String eventBusIndex) {
 
         proguardTask.doLast(new Action<Task>() {
             @Override
@@ -77,7 +98,7 @@ public class EventBusPlugin implements Plugin<Project>{
 
                 if (proguardedJarFile != null && mappingFile != null) {
                     try {
-                        SubscriberInfoIndexProcessor.process(proguardedJarFile, mappingFile, eventbusIndex, "<clinit>", null);
+                        SubscriberInfoIndexProcessor.process(proguardedJarFile, mappingFile, eventBusIndex, "<clinit>", null);
                     } catch (IOException e) {
                         throw new RuntimeException(e);
                     }
