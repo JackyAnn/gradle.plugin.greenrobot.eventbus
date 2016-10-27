@@ -126,10 +126,11 @@ public class a implements d
     
     static {
         a = new HashMap<Class<?>, c>();
-        a(new a.a.a.a.b(MainActivity.class, true, new e[] { new e("showMessage", com.tobelinker.greenrobot.eventbus.sample.c.class), new e("showMessage", b.class), new e("showMessage", String.class), new e("showMessage", Object.class) }));
         a(new a.a.a.a.b(com.tobelinker.greenrobot.eventbus.sample.a.class, true, new e[] { new e("showMessage", com.tobelinker.greenrobot.eventbus.sample.c.class), new e("showMessage", b.class) }));
+        a(new a.a.a.a.b(MainActivity.class, true, new e[] { new e("showMessage", com.tobelinker.greenrobot.eventbus.sample.c.class), new e("showMessage", b.class), new e("showMessage", String.class), new e("showMessage", Object.class) }));
     }
 }
+
 ```
 
 * the mapping.txt
