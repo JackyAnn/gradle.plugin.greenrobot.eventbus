@@ -1,9 +1,9 @@
 # gradle.plugin.greenrobot.eventbus
 [![JitPack](https://jitpack.io/v/JackyAnn/gradle.plugin.greenrobot.eventbus.svg)](https://jitpack.io/#JackyAnn/gradle.plugin.greenrobot.eventbus)
 
-gradle.plugin.greenrobot.eventbus is a gradle plugin for eventbus when use proguard.
+gradle.plugin.greenrobot.eventbus is a gradle plugin for [EventBus](https://github.com/greenrobot/EventBus) when use proguard.
 * is supports [EventBus](https://github.com/greenrobot/EventBus) version from 3.0 and above.
-* is supports com.android.tools.build:gradle version from 1.5 and above.
+* is supports [com.android.tools.build:gradle](https://bintray.com/android/android-tools/com.android.tools.build.gradle) version from 1.5 and above.
 * is supports android AnnotationProcessor
 * is supports [android-apt](https://bitbucket.org/hvisser/android-apt)
 
