@@ -9,17 +9,20 @@ gradle.plugin.greenrobot.eventbus is a gradle plugin for eventbus when use progu
 
 
 ## Process
-1. hook gradle proguard task.
-2. parse mapping.txt.
-3. analyse class file.
-4. replace method name
+*1. hook gradle proguard task.*
+
+*2. parse mapping.txt.*
+
+*3. analyse class file.*
+
+*4. replace method name.*
 
 ## Integration
 
 ### How to use
-1. integration [EventBus](https://github.com/greenrobot/EventBus) and [EventBusAnnotationProcessor](https://github.com/greenrobot/EventBus/tree/master/EventBusAnnotationProcessor)
+*1. integration [EventBus](https://github.com/greenrobot/EventBus) and [EventBusAnnotationProcessor](https://github.com/greenrobot/EventBus/tree/master/EventBusAnnotationProcessor)*
 
-2. add the jitpack repository and plugin dependency to your project build file
+*2. add the jitpack repository and plugin dependency to your project build file*
 	* gradle
 ```gradle
 buildscript {
@@ -33,7 +36,7 @@ buildscript {
 }
 ```
 
-3. apply plugin to you module build file
+*3. apply plugin to you module build file*
 	* gradle
 ```gradle
 apply plugin: 'com.tobelinker.greenrobot.eventbus'
