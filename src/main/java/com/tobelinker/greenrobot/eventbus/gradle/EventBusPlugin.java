@@ -81,7 +81,6 @@ public class EventBusPlugin implements Plugin<Project>{
             eventBusIndex = arguments.get("eventBusIndex");
             return eventBusIndex;
         } catch (Exception e) {
-
         }
 
         return null;
