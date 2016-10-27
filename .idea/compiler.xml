@@ -2,6 +2,8 @@
 <project version="4">
   <component name="CompilerConfiguration">
     <bytecodeTargetLevel>
+      <module name="gradle.plugin.greenrobot.eventbus_main" target="1.8" />
+      <module name="gradle.plugin.greenrobot.eventbus_test" target="1.8" />
       <module name="greenrobot-eventbus-gradle-plugin_main" target="1.8" />
       <module name="greenrobot-eventbus-gradle-plugin_test" target="1.8" />
     </bytecodeTargetLevel>
