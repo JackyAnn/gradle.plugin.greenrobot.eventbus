@@ -5,9 +5,6 @@
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gradle.plugin.greenrobot.eventbus.iml" filepath="$PROJECT_DIR$/.idea/modules/gradle.plugin.greenrobot.eventbus.iml" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gradle.plugin.greenrobot.eventbus_main.iml" filepath="$PROJECT_DIR$/.idea/modules/gradle.plugin.greenrobot.eventbus_main.iml" group="gradle.plugin.greenrobot.eventbus" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/gradle.plugin.greenrobot.eventbus_test.iml" filepath="$PROJECT_DIR$/.idea/modules/gradle.plugin.greenrobot.eventbus_test.iml" group="gradle.plugin.greenrobot.eventbus" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/greenrobot-eventbus-gradle-plugin.iml" filepath="$PROJECT_DIR$/.idea/modules/greenrobot-eventbus-gradle-plugin.iml" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/greenrobot-eventbus-gradle-plugin_main.iml" filepath="$PROJECT_DIR$/.idea/modules/greenrobot-eventbus-gradle-plugin_main.iml" group="greenrobot-eventbus-gradle-plugin" />
-      <module fileurl="file://$PROJECT_DIR$/.idea/modules/greenrobot-eventbus-gradle-plugin_test.iml" filepath="$PROJECT_DIR$/.idea/modules/greenrobot-eventbus-gradle-plugin_test.iml" group="greenrobot-eventbus-gradle-plugin" />
     </modules>
   </component>
 </project>

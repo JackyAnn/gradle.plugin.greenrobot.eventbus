@@ -1,7 +1,6 @@
 package com.tobelinker.greenrobot.eventbus.gradle;
 
 import com.android.build.gradle.AppExtension;
-import com.android.build.gradle.AppPlugin;
 import com.android.build.gradle.api.ApplicationVariant;
 import com.android.build.gradle.internal.dsl.ProductFlavor;
 
@@ -11,16 +10,18 @@ import org.gradle.api.Plugin;
 import org.gradle.api.Project;
 import org.gradle.api.Task;
 import org.gradle.api.file.FileCollection;
+import org.jetbrains.annotations.NotNull;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Method;
+import java.util.List;
 import java.util.Map;
 
 public class EventBusPlugin implements Plugin<Project>{
     @Override
     public void apply(Project project) {
-        if(!project.getPlugins().hasPlugin(AppPlugin.class)){
+        if(!project.getPlugins().hasPlugin("android") || ! project.getPlugins().hasPlugin("com.android.application")){
             throw new IllegalStateException("EventBus plugin can only be applied to android projects!");
         }
 
@@ -41,10 +42,36 @@ public class EventBusPlugin implements Plugin<Project>{
 
     private void findAndHookProguardTask(Project project, AppExtension android) {
         DomainObjectSet<ApplicationVariant> applicationVariants = android.getApplicationVariants();
-        String eventBusIndex = null;
 
-        ProductFlavor defaultConfig = android.getDefaultConfig();
+
+        for(ApplicationVariant variant : applicationVariants){
+            String eventBusIndex = null;
+
+            ProductFlavor defaultConfig = android.getDefaultConfig();
+            eventBusIndex = readEventBusIndexFromAnnotationProcessorOptions(defaultConfig);
+            if(eventBusIndex == null || eventBusIndex.isEmpty()){
+                eventBusIndex = readEventBusIndexFromAndroidApt(project);
+
+                if(eventBusIndex == null || eventBusIndex.isEmpty()){
+                    eventBusIndex = readEventBusIndexFromExtension(project);
+                }
+            }
+
+            if(eventBusIndex == null || eventBusIndex.isEmpty()){
+                throw new IllegalStateException("eventBusIndex is null or empty!");
+            }
+            String name = variant.getName();
+            Task proguardTask = project.getTasks().findByName("transformClassesAndResourcesWithProguardFor"+capitalize(name));
+            if(proguardTask != null){
+                hookProguardTask(proguardTask, eventBusIndex);
+            }
+        }
+    }
+
+
+    private String readEventBusIndexFromAnnotationProcessorOptions(ProductFlavor defaultConfig) {
         try {
+            String eventBusIndex = null;
             Method getJavaCompileOptions = defaultConfig.getClass().getDeclaredMethod("getJavaCompileOptions");
             Object javaCompileOptions = getJavaCompileOptions.invoke(defaultConfig);
             Method getAnnotationProcessorOptions = javaCompileOptions.getClass().getDeclaredMethod("getAnnotationProcessorOptions");
@@ -52,23 +79,51 @@ public class EventBusPlugin implements Plugin<Project>{
             Method getArguments = annotationProcessorOptions.getClass().getDeclaredMethod("getArguments");
             Map<String, String> arguments = (Map<String, String>) getArguments.invoke(annotationProcessorOptions);
             eventBusIndex = arguments.get("eventBusIndex");
-
+            return eventBusIndex;
         } catch (Exception e) {
-            EventBusExtension eventBusExtension = (EventBusExtension) project.getExtensions().findByName("greenrobot-eventbus");
-            if (eventBusExtension != null) {
-                eventBusIndex = eventBusExtension.getEventBusIndex();
-            }
-            if (eventBusIndex == null || eventBusIndex.isEmpty()) {
-                throw new IllegalStateException("eventbusIndex is null or emply!");
-            }
+
         }
-        for(ApplicationVariant variant : applicationVariants){
-            String name = variant.getName();
-            Task proguardTask = project.getTasks().findByName("transformClassesAndResourcesWithProguardFor"+capitalize(name));
-            if(proguardTask != null){
-                hookProguardTask(proguardTask, eventBusIndex);
+
+        return null;
+    }
+
+    private String readEventBusIndexFromAndroidApt(Project project){
+        try {
+            String eventBusIndex = null;
+            Object androidAptExtension = project.getExtensions().findByName("apt");
+
+            if(androidAptExtension != null){
+                Method arguments = androidAptExtension.getClass().getSuperclass().getDeclaredMethod("arguments");
+                Object aptarguments = arguments.invoke(androidAptExtension);
+                List options = (List) aptarguments;
+                for(Object argument : options){
+                    String[] temp = (argument.toString()).split("=");
+                    if(temp.length == 2){
+                        if(temp[0].equals("-AeventBusIndex")){
+                        System.out.println(temp[1]);
+                            return temp[1];
+                        }
+                    }
+                }
+                return eventBusIndex;
             }
+        }catch (Exception e){
+
         }
+        return null;
+    }
+
+    @NotNull
+    private String readEventBusIndexFromExtension(Project project) {
+        String eventBusIndex = null;
+        EventBusExtension eventBusExtension = (EventBusExtension) project.getExtensions().findByName("greenrobot-eventbus");
+        if (eventBusExtension != null) {
+            eventBusIndex = eventBusExtension.getEventBusIndex();
+        }
+        if (eventBusIndex == null || eventBusIndex.isEmpty()) {
+            throw new IllegalStateException("eventBusIndex is null or emply!");
+        }
+        return eventBusIndex;
     }
 
     private void hookProguardTask(final Task proguardTask, final String eventBusIndex) {
